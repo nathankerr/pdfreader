@@ -10,7 +10,7 @@ package util
 
 import (
   "fmt"
-  "xchar"
+  "github.com/nathankerr/pdfreader/xchar"
 )
 
 var wrongUniCode = xchar.Utf8(-1)

@@ -11,8 +11,8 @@ package main
 import (
   "fmt"
   "os"
-  "pdfread"
-  "util"
+  "github.com/nathankerr/pdfreader/pdfread"
+  "github.com/nathankerr/pdfreader/util"
 )
 
 // The program takes a PDF file and an object reference of a stream.

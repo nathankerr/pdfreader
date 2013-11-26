@@ -11,11 +11,11 @@ package pdfread
 import (
   "compress/zlib"
   "encoding/ascii85"
-  "fancy"
-  "hex"
+  "github.com/nathankerr/pdfreader/fancy"
+  "github.com/nathankerr/pdfreader/hex"
   "log"
-  "lzw"
-  "ps"
+  "github.com/nathankerr/pdfreader/lzw"
+  "github.com/nathankerr/pdfreader/ps"
   "regexp"
 )
 

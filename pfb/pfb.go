@@ -9,7 +9,7 @@
 package pfb
 
 import (
-  "hex"
+  "github.com/nathankerr/pdfreader/hex"
 )
 
 func Decode(b []byte) []byte {

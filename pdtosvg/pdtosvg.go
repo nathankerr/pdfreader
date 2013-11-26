@@ -11,9 +11,9 @@ package main
 import (
   "fmt"
   "os"
-  "pdfread"
-  "strm"
-  "svg"
+  "github.com/nathankerr/pdfreader/pdfread"
+  "github.com/nathankerr/pdfreader/strm"
+  "github.com/nathankerr/pdfreader/svg"
 )
 
 // The program takes a PDF file and converts a page to SVG.

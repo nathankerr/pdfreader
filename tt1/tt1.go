@@ -9,13 +9,13 @@
 package main
 
 import (
-  "fancy"
+  "github.com/nathankerr/pdfreader/fancy"
   "fmt"
   "io/ioutil"
   "os"
-  "pfb"
-  "type1"
-  "util"
+  "github.com/nathankerr/pdfreader/pfb"
+  "github.com/nathankerr/pdfreader/type1"
+  "github.com/nathankerr/pdfreader/util"
 )
 
 // use this program with a pfa-font - it is only here for testing

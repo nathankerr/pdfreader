@@ -3,7 +3,7 @@ package main
 import (
   "fmt"
   "os"
-  "pdfread"
+  "github.com/nathankerr/pdfreader/pdfread"
 )
 
 // Example program for pdfread.go

@@ -9,15 +9,15 @@
 package svgtext
 
 import (
-  "cmapi"
-  "cmapt"
-  "fancy"
-  "graf"
+  "github.com/nathankerr/pdfreader/cmapi"
+  "github.com/nathankerr/pdfreader/cmapt"
+  "github.com/nathankerr/pdfreader/fancy"
+  "github.com/nathankerr/pdfreader/graf"
   "io/ioutil"
-  "pdfread"
-  "ps"
-  "strm"
-  "util"
+  "github.com/nathankerr/pdfreader/pdfread"
+  "github.com/nathankerr/pdfreader/ps"
+  "github.com/nathankerr/pdfreader/strm"
+  "github.com/nathankerr/pdfreader/util"
 )
 
 const WIDTH_DENSITY = 10000

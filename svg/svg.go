@@ -9,14 +9,14 @@
 package svg
 
 import (
-  "fancy"
+  "github.com/nathankerr/pdfreader/fancy"
   "fmt"
   "os"
-  "pdfread"
-  "strm"
-  "svgdraw"
-  "svgtext"
-  "util"
+  "github.com/nathankerr/pdfreader/pdfread"
+  "github.com/nathankerr/pdfreader/strm"
+  "github.com/nathankerr/pdfreader/svgdraw"
+  "github.com/nathankerr/pdfreader/svgtext"
+  "github.com/nathankerr/pdfreader/util"
 )
 
 func complain(err string) {

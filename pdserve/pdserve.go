@@ -13,9 +13,9 @@ import (
   "io"
   "net/http"
   "os"
-  "pdfread"
-  "strm"
-  "svg"
+  "github.com/nathankerr/pdfreader/pdfread"
+  "github.com/nathankerr/pdfreader/strm"
+  "github.com/nathankerr/pdfreader/svg"
 )
 
 var pd *pdfread.PdfReaderT

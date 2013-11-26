@@ -10,10 +10,10 @@ package svgdraw
 
 import (
   "fmt"
-  "graf"
-  "stacks"
-  "strm"
-  "util"
+  "github.com/nathankerr/pdfreader/graf"
+  "github.com/nathankerr/pdfreader/stacks"
+  "github.com/nathankerr/pdfreader/strm"
+  "github.com/nathankerr/pdfreader/util"
 )
 
 type SvgT struct {
