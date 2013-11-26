@@ -9,7 +9,6 @@
 package pfb
 
 import (
-  "bytes"
   "hex"
 )
 
@@ -24,9 +23,9 @@ func Decode(b []byte) []byte {
     }
     l := int(b[2]) + (int(b[3]) << 8) + (int(b[4]) << 16) + 6
     if b[1] == 1 {
-      r = bytes.Add(r, b[6:l])
+      r = append(r, b[6:l]...)
     } else {
-      r = bytes.Add(r, hex.Encode(b[6:l]))
+      r = append(r, hex.Encode(b[6:l])...)
     }
     b = b[l:]
   }

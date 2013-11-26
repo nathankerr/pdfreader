@@ -16,12 +16,12 @@ import (
 )
 
 type Reader interface {
-  ReadAt(buf []byte, pos int64) (n int, err os.Error)
-  Read(b []byte) (n int, err os.Error)
+  ReadAt(buf []byte, pos int64) (n int, err error)
+  Read(b []byte) (n int, err error)
   Slice(n int) []byte
-  Seek(off int64, whence int) (ret int64, err os.Error)
-  ReadByte() (c byte, err os.Error)
-  UnreadByte() os.Error
+  Seek(off int64, whence int) (ret int64, err error)
+  ReadByte() (c byte, err error)
+  UnreadByte() error
   Size() int64
 }
 
@@ -66,8 +66,8 @@ func (sr *SecReaderT) access(pos int64) (sl []byte, p int) {
         a = sr.age[k]
       }
     }
-    sr.cache[old] = nil, false
-    sr.age[old] = 0, false
+    delete(sr.cache, old)
+    delete(sr.age, old)
   }
   sr.ticker++
   sl = make([]byte, min(sr.size-pos*_SECTOR_SIZE, _SECTOR_SIZE))
@@ -77,9 +77,9 @@ func (sr *SecReaderT) access(pos int64) (sl []byte, p int) {
   return
 }
 
-func (sr *SecReaderT) ReadAt(buf []byte, pos int64) (n int, err os.Error) {
+func (sr *SecReaderT) ReadAt(buf []byte, pos int64) (n int, err error) {
   if pos >= sr.size {
-    return 0, os.EOF
+    return 0, io.EOF
   }
   b, p := sr.access(pos)
   for ; p < _SECTOR_SIZE && n < len(buf); p++ {
@@ -103,13 +103,13 @@ func (sr *SecReaderT) ReadAt(buf []byte, pos int64) (n int, err os.Error) {
   return
 }
 
-func (sr *SecReaderT) Read(b []byte) (n int, err os.Error) {
+func (sr *SecReaderT) Read(b []byte) (n int, err error) {
   n, err = sr.ReadAt(b, sr.pos)
   sr.pos += int64(n)
   return
 }
 
-func (sr *SecReaderT) Seek(off int64, whence int) (ret int64, err os.Error) {
+func (sr *SecReaderT) Seek(off int64, whence int) (ret int64, err error) {
   ret = sr.pos
   switch whence {
   case 0:
@@ -121,18 +121,18 @@ func (sr *SecReaderT) Seek(off int64, whence int) (ret int64, err os.Error) {
   return
 }
 
-func (sr *SecReaderT) ReadByte() (c byte, err os.Error) {
+func (sr *SecReaderT) ReadByte() (c byte, err error) {
   if sr.pos < sr.size {
     b, p := sr.access(sr.pos)
     c = b[p]
     sr.pos++
   } else {
-    err = os.EOF
+    err = io.EOF
   }
   return
 }
 
-func (sr *SecReaderT) UnreadByte() os.Error {
+func (sr *SecReaderT) UnreadByte() error {
   sr.pos--
   return nil
 }
@@ -147,7 +147,7 @@ func (sr *SecReaderT) Slice(n int) []byte {
 
 // grmpf: Next is for AUTOGENERATE!
 // The thing here is only (!) for convenience.
-func (sr *SecReaderT) ReadBytes(delim byte) ([]byte, os.Error) {
+func (sr *SecReaderT) ReadBytes(delim byte) ([]byte, error) {
   return bufio.NewReader(sr).ReadBytes(delim)
 }
 
@@ -167,13 +167,13 @@ type SliceReaderT struct {
   pos int64
 }
 
-func (sl *SliceReaderT) ReadAt(b []byte, off int64) (n int, err os.Error) {
+func (sl *SliceReaderT) ReadAt(b []byte, off int64) (n int, err error) {
   for n := 0; n < len(b); n++ {
     if off >= int64(len(sl.bin)) {
       if n > 0 {
         break
       }
-      return n, os.EOF
+      return n, io.EOF
     }
     b[n] = sl.bin[off]
     off++
@@ -181,13 +181,13 @@ func (sl *SliceReaderT) ReadAt(b []byte, off int64) (n int, err os.Error) {
   return len(b), nil
 }
 
-func (sl *SliceReaderT) Read(b []byte) (n int, err os.Error) {
+func (sl *SliceReaderT) Read(b []byte) (n int, err error) {
   n, err = sl.ReadAt(b, sl.pos)
   sl.pos += int64(n)
   return
 }
 
-func (sl *SliceReaderT) Seek(off int64, whence int) (ret int64, err os.Error) {
+func (sl *SliceReaderT) Seek(off int64, whence int) (ret int64, err error) {
   ret = sl.pos
   switch whence {
   case 0:
@@ -201,17 +201,17 @@ func (sl *SliceReaderT) Seek(off int64, whence int) (ret int64, err os.Error) {
 
 func (sl *SliceReaderT) Size() int64 { return int64(len(sl.bin)) }
 
-func (sl *SliceReaderT) ReadByte() (c byte, err os.Error) {
+func (sl *SliceReaderT) ReadByte() (c byte, err error) {
   if sl.pos < int64(len(sl.bin)) {
     c = sl.bin[sl.pos]
     sl.pos++
   } else {
-    err = os.EOF
+    err = io.EOF
   }
   return
 }
 
-func (sl *SliceReaderT) UnreadByte() os.Error {
+func (sl *SliceReaderT) UnreadByte() error {
   sl.pos--
   return nil
 }
@@ -223,7 +223,7 @@ func (sl *SliceReaderT) Slice(n int) []byte {
 
 // grmpf: Next is for AUTOGENERATE!
 // The thing here is only (!) for convenience.
-func (sl *SliceReaderT) ReadBytes(delim byte) ([]byte, os.Error) {
+func (sl *SliceReaderT) ReadBytes(delim byte) ([]byte, error) {
   return bufio.NewReader(sl).ReadBytes(delim)
 }
 
@@ -235,7 +235,7 @@ func SliceReader(bin []byte) Reader {
 
 // ------------------------------------------------------------------
 
-func ReadAndClose(f io.ReadCloser, err os.Error) []byte {
+func ReadAndClose(f io.ReadCloser, err error) []byte {
   if err != nil {
     return []byte{}
   }
@@ -249,11 +249,11 @@ func FileReader(fn string) Reader {
   if err != nil {
     return nil
   }
-  fil, err := os.Open(fn, os.O_RDONLY, -1)
+  fil, err := os.Open(fn)
   if err != nil {
     return nil
   }
-  return SecReader(fil, int64(dir.Size))
+  return SecReader(fil, int64(dir.Size()))
 }
 
 func ReadAll(f io.Reader) []byte {

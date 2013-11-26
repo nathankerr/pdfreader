@@ -104,8 +104,8 @@ type OutT struct {
   Content []byte
 }
 
-func (t *OutT) Out(f string, args ...) {
-  p := fmt.Sprintf(f, args)
+func (t *OutT) Out(f string, args ...interface{}) {
+  p := fmt.Sprintf(f, args...)
   q := len(t.Content)
   if cap(t.Content)-q < len(p) {
     n := make([]byte, cap(t.Content)+(len(p)/512+2)*512)

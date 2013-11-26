@@ -17,8 +17,8 @@ import (
   "type1"
   "util"
 )
-// use this program with a pfa-font - it is only here for testing
 
+// use this program with a pfa-font - it is only here for testing
 
 func dumpT1(i *type1.TypeOneI) {
   for k := range i.Fonts {

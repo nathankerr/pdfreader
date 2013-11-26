@@ -10,8 +10,8 @@ package main
 
 import (
   "fmt"
-  "http"
   "io"
+  "net/http"
   "os"
   "pdfread"
   "strm"
@@ -21,10 +21,10 @@ import (
 var pd *pdfread.PdfReaderT
 
 // hello world, the web server
-func HelloServer(c *http.Conn, req *http.Request) {
-  c.SetHeader("Content-Type", "image/svg+xml; charset=utf-8")
+func HelloServer(w http.ResponseWriter, req *http.Request) {
+  w.Header().Add("Content-Type", "image/svg+xml; charset=utf-8")
   page := strm.Int(req.URL.RawQuery, 1) - 1
-  io.WriteString(c, string(svg.Page(pd, page)))
+  io.WriteString(w, string(svg.Page(pd, page)))
 }
 
 func complain(err string) {
@@ -43,6 +43,6 @@ func main() {
   http.Handle("/hello", http.HandlerFunc(HelloServer))
   err := http.ListenAndServe(":12345", nil)
   if err != nil {
-    panic("ListenAndServe: ", err.String())
+    panic("ListenAndServe: " + err.Error())
   }
 }

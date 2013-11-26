@@ -31,7 +31,7 @@ while ($source =~ /\/[*]/) {
 }
 
 my %used;
-$used{$1} = 1 while $source =~ /([a-z0-9]+)\./g;
+$used{$1} = 1 while $source =~ /[^\.]?([a-z0-9]+)\./g;
 
 my @imports;
 for (sort keys %used) {

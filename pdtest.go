@@ -5,11 +5,11 @@ import (
   "os"
   "pdfread"
 )
+
 // Example program for pdfread.go
 
 // The program takes a PDF file as argument and writes the MediaBoxes and
 // defined fonts of the pages.
-
 
 func main() {
   pd := pdfread.Load(os.Args[1])

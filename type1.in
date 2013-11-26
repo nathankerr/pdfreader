@@ -233,14 +233,14 @@ func (t *TypeOneI) op_ifelse(a [][]byte) {
   +    } else if a[0][0] == 'A' {
   +      t.St.Push(t.Arrays[i][strm.Int(string(a[1]), 1)]);
   +    } else { panic("Can not 'get' from!\n") }
-1 eexec          -
-  +    b := eexec(t.Rdr);
-  +    old := t.Rdr;
-  +    t.Rdr = fancy.SliceReader(b);
-  +    proceed(t, t.Rdr);
-  +    t.Rdr = old;
-  +    t.Done = false;
-  +    _ = a;
+# 1 eexec          -
+#   +    b := eexec(t.Rdr);
+#   +    old := t.Rdr;
+#   +    t.Rdr = fancy.SliceReader(b);
+#   +    proceed(t, t.Rdr);
+#   +    t.Rdr = old;
+#   +    t.Done = false;
+#   +    _ = a;
 1 index          -
   +    t.St.Push(t.St.Index(strm.Int(string(a), 1) + 1));
 2 definefont     -
@@ -252,10 +252,10 @@ func (t *TypeOneI) op_ifelse(a [][]byte) {
 4 for            -
   +    // FIXME
   +    _ = a;
-3 ifelse         -
-  +    t.op_ifelse(a);
-2 if             -
-  +    t.op_ifelse([][]byte{a[0], a[1], []byte{}});
+# 3 ifelse         -
+#   +    t.op_ifelse(a);
+# 2 if             -
+#   +    t.op_ifelse([][]byte{a[0], a[1], []byte{}});
 2 known          -
   +    t.St.Push(util.Bytes("false")); // FIX ME knows nothing ;)
   +    _ = a;
@@ -266,6 +266,30 @@ func (t *TypeOneI) op_ifelse(a [][]byte) {
   +    t.St.Push(util.Bytes("false"));
   +    _ = a;
 %%
+
+// used to solve an inititalization loop
+func init() {
+  Ops["eexec"] = func(t *TypeOneI) {
+    a := t.St.Pop()
+    b := eexec(t.Rdr)
+    old := t.Rdr
+    t.Rdr = fancy.SliceReader(b)
+    proceed(t, t.Rdr)
+    t.Rdr = old
+    t.Done = false
+    _ = a
+  }
+
+  Ops["if"] =  func(t *TypeOneI) {
+    a := t.St.Drop(2)
+    t.op_ifelse([][]byte{a[0], a[1], []byte{}})
+  }
+
+  Ops["ifelse"] = func(t *TypeOneI) {
+    a := t.St.Drop(3)
+    t.op_ifelse(a)
+  }
+}
 
 func find(i *TypeOneI, s string) (r []byte, ok bool) {
   for k := i.DicSp; k >= 0 && !ok; k-- {

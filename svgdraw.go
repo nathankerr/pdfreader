@@ -97,7 +97,6 @@ func (s *SvgT) SetIdentity() {
 
 func (s *SvgT) CloseDrawing() { s.SetIdentity() }
 
-
 func (s *SvgT) Gray(a []byte) string {
   c := strm.Percent(a)
   return fmt.Sprintf("rgb(%s%%,%s%%,%s%%)", c, c, c)

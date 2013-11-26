@@ -9,7 +9,7 @@
 package strm
 
 import (
-  "bignum"
+  "math/big"
 )
 
 func operand(s string) (r int64, f int) {
@@ -93,21 +93,22 @@ func String(a int64, f int) string {
 }
 
 func Mul(a, b string) string {
-  ra, rb, f := twop(a, b)
-  ar := bignum.Rat(ra, int64(f))
-  br := bignum.Rat(rb, int64(f))
-  i, n := ar.Mul(br).Value()
-  nv := n.Value()
-  d := uint64(1)
+  ra, _, f := twop(a, b)
+  ar := big.NewRat(ra, int64(f))
+  // br := big.NewRat(rb, int64(f))
+  i := ar.Num()
+  n := ar.Denom()
+  nv := n.Int64()
+  d := int64(1)
   for d%nv != 0 {
     d *= 10
   }
-  i = i.Mul1(int64(d / nv))
-  if uint64(f) < d {
-    i = i.Div(bignum.Int(int64(d / uint64(f))))
-    d = uint64(f)
+  i = i.Mul(i, big.NewInt(int64(d/nv)))
+  if int64(f) < d {
+    i = i.Div(i, big.NewInt(int64(d/int64(f))))
+    d = int64(f)
   }
-  return String(i.Value(), int(d))
+  return String(i.Int64(), int(d))
 }
 
 func Add(a, b string) string {

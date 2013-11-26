@@ -13,6 +13,7 @@ import (
   "encoding/ascii85"
   "fancy"
   "hex"
+  "log"
   "lzw"
   "ps"
   "regexp"
@@ -99,11 +100,11 @@ func xrefStart(f fancy.Reader) int {
   s := int(f.Size())
   pdf := make([]byte, min(s, 1024))
   f.ReadAt(pdf, int64(max(0, s-1024)))
-  ps := xref.AllMatches(pdf, 0)
+  ps := xref.FindAll(pdf, -1)
   if ps == nil {
     return -1
   }
-  return num(xref.MatchSlices(ps[len(ps)-1])[2])
+  return num(xref.FindSubmatch(ps[len(ps)-1])[2])
 }
 
 // xrefSkip() queries the start of the trailer for a (partial) xref-table.
@@ -209,7 +210,7 @@ func xrefRead(f fancy.Reader, p int) map[int]int {
       dat := f.Slice(num(m[1]) * 20)
       for i := 0; i < len(dat); i += 20 {
         if dat[i+17] != 'n' {
-          r[o] = 0, false
+          delete(r, o)
         } else {
           r[o] = num(dat[i : i+10])
         }
@@ -391,7 +392,7 @@ func (pd *PdfReaderT) DecodedStream(reference []byte) (DictionaryT, []byte) {
       deco := pd.Dic(decos[ff])
       switch string(filter[ff]) {
       case "/FlateDecode":
-        data = fancy.ReadAndClose(zlib.NewInflater(fancy.SliceReader(data)))
+        data = fancy.ReadAndClose(zlib.NewReader(fancy.SliceReader(data)))
       case "/LZWDecode":
         early := true
         if deco != nil {
@@ -434,6 +435,7 @@ func Load(fn string) *PdfReaderT {
   r.File = fn
   r.rdr = fancy.FileReader(fn)
   if r.Startxref = xrefStart(r.rdr); r.Startxref == -1 {
+    log.Fatalln(r.Startxref)
     return nil
   }
   if r.Xref = xrefRead(r.rdr, r.Startxref); r.Xref == nil {

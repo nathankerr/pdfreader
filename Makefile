@@ -1,9 +1,14 @@
-include $(GOROOT)/src/Make.$(GOARCH)
+#include $(GOROOT)/src/Make.$(GOARCH)
+
+# fix since imported makefile no longer exists
+GC = go tool 6g
+LD = go tool 6l -L .
+GOROOT = 
 
 # uncomment next line if you do not like autoimport
-#AUTO = #
+AUTO = $(shell go env) 
 
-FMT = gofmt -spaces -tabwidth=2 -tabindent=false
+FMT = gofmt -tabs=false -tabwidth=2
 ALLGO = graf.go cmapi.go type1.go stacks.go
 GOFILES = $(wildcard *.go) $(ALLGO)
 ALLTS = $(GOFILES:.go=.ts)
@@ -13,16 +18,18 @@ PIGGY = *.$O DEADJOE
 all: $(ALL)
 
 %: %.$O
-	$(LD) -o $* $*.$O
+	$(LD) -o $* $*.6
 
-%.$O: %.go %.ts
-	$(GC) -I. $*.go
+%.$O: %.go
+	$(GC) -I . $*.go
 
 %.go: %.in
 	perl $*.in >$*.go
 
 %.ts: %.go
 	@make -s $(ALLGO)
+	gofmt -w -r "os.Error -> error" $*.go
+	gofmt -w -r "os.EOF -> io.EOF" $*.go
 	$(AUTO) ./autoimport $*.go | $(FMT) > $*.new
 	$(AUTO) mv $*.go $*.go~~ && mv $*.new $*.go
 	touch $*.ts
@@ -33,7 +40,7 @@ depend: $(ALLGO) $(ALLTS)
 	mv -f mkf.new Makefile
 
 clean:
-	-rm *~
+	-rm *~ *.ts pdtosvg pdstream tt1 pdserve *.6 cmapi.go graf.go stacks.go type1.go
 
 distclean: clean
 	-rm $(ALL) $(PIGGY) 2>/dev/null
