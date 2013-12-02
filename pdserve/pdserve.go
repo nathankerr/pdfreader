@@ -41,7 +41,9 @@ func main() {
 		complain("Could not load pdf file!\n\n")
 	}
 	http.Handle("/hello", http.HandlerFunc(HelloServer))
-	err := http.ListenAndServe(":12345", nil)
+	address := "127.0.0.1:12345"
+	fmt.Printf("Serving on http://%s\n", address)
+	err := http.ListenAndServe(address, nil)
 	if err != nil {
 		panic("ListenAndServe: " + err.Error())
 	}
