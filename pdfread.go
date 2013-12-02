@@ -56,7 +56,6 @@ func min(a, b int) int {
 	}
 	return b
 }
-func end(a []byte, n int) int { return max(0, len(a)-n) }
 
 func num(n []byte) (r int) {
 	for i := 0; i < len(n); i++ {
@@ -128,8 +127,8 @@ func xrefSkip(f fancy.Reader, xref int) int {
 	return int(r)
 }
 
-// Dictionary() makes a map/hash from PDF dictionary data.
-func Dictionary(s []byte) DictionaryT {
+// dictionary() makes a map/hash from PDF dictionary data.
+func dictionary(s []byte) DictionaryT {
 	if len(s) < 4 {
 		return nil
 	}
@@ -154,8 +153,8 @@ func Dictionary(s []byte) DictionaryT {
 	return r
 }
 
-// Array() extracts an array from PDF data.
-func Array(s []byte) [][]byte {
+// array() extracts an array from PDF data.
+func array(s []byte) [][]byte {
 	if len(s) < 2 || s[0] != '[' || s[len(s)-1] != ']' {
 		return nil
 	}
@@ -192,7 +191,7 @@ func xrefRead(f fancy.Reader, p int) map[int]int {
 			return nil
 		}
 		s, _ = ps.Token(f)
-		s, ok = Dictionary(s)["/Prev"]
+		s, ok = dictionary(s)["/Prev"]
 		p = num(s)
 	}
 	r := make(map[int]int)
@@ -240,7 +239,7 @@ func (pd *PdfReaderT) object(o int) (int, []byte) {
 
 // pd.Resolve() resolves a reference in the PDF file. You'll probably need
 // this method for reading streams only.
-func (pd *PdfReaderT) Resolve(s []byte) (int, []byte) {
+func (pd *PdfReaderT) resolve(s []byte) (int, []byte) {
 	if len(s) < 5 || s[len(s)-1] != 'R' {
 		return -1, s
 	}
@@ -274,21 +273,21 @@ func (pd *PdfReaderT) Resolve(s []byte) (int, []byte) {
 // pd.Obj() is the universal method to access contents of PDF objects or
 // data tokens in i.e.  dictionaries.  For reading streams you'll have to
 // utilize pd.Resolve().
-func (pd *PdfReaderT) Obj(reference []byte) []byte {
-	_, r := pd.Resolve(reference)
+func (pd *PdfReaderT) obj(reference []byte) []byte {
+	_, r := pd.resolve(reference)
 	return r
 }
 
 // pd.Num() queries integer data from a reference.
-func (pd *PdfReaderT) Num(reference []byte) int {
-	return num(pd.Obj(reference))
+func (pd *PdfReaderT) num(reference []byte) int {
+	return num(pd.obj(reference))
 }
 
 // pd.Dic() queries dictionary data from a reference.
 func (pd *PdfReaderT) Dic(reference []byte) DictionaryT {
 	d, ok := pd.dicache[string(reference)]
 	if !ok {
-		d = Dictionary(pd.Obj(reference))
+		d = dictionary(pd.obj(reference))
 		pd.dicache[string(reference)] = d
 	}
 	return d
@@ -296,17 +295,17 @@ func (pd *PdfReaderT) Dic(reference []byte) DictionaryT {
 
 // pd.Arr() queries array data from a reference.
 func (pd *PdfReaderT) Arr(reference []byte) [][]byte {
-	return Array(pd.Obj(reference))
+	return array(pd.obj(reference))
 }
 
 // pd.ForcedArray() queries array data. If reference does not refer to an
 // array, reference is taken as element of the returned array.
 func (pd *PdfReaderT) ForcedArray(reference []byte) [][]byte {
-	nr := pd.Obj(reference)
+	nr := pd.obj(reference)
 	if nr[0] != '[' {
 		return [][]byte{reference}
 	}
-	return Array(nr)
+	return array(nr)
 }
 
 // pd.Pages() returns an array with references to the pages of the PDF.
@@ -315,7 +314,7 @@ func (pd *PdfReaderT) Pages() [][]byte {
 		return pd.pages
 	}
 	pages := pd.Dic(pd.Dic(pd.Trailer["/Root"])["/Pages"])
-	pd.pages = make([][]byte, pd.Num(pages["/Count"]))
+	pd.pages = make([][]byte, pd.num(pages["/Count"]))
 	cp := 0
 	done := make(map[string]int)
 	var q func(p [][]byte)
@@ -338,10 +337,10 @@ func (pd *PdfReaderT) Pages() [][]byte {
 	return pd.pages
 }
 
-// pd.Attribute() tries to get an attribute definition from a page
+// pd.attribute() tries to get an attribute definition from a page
 // reference.  Note that the attribute definition is not resolved - so it's
 // possible to get back a reference here.
-func (pd *PdfReaderT) Attribute(a string, src []byte) []byte {
+func (pd *PdfReaderT) attribute(a string, src []byte) []byte {
 	d := pd.Dic(src)
 	done := make(map[string]int)
 	r, ok := d[a]
@@ -360,14 +359,14 @@ func (pd *PdfReaderT) Attribute(a string, src []byte) []byte {
 // pd.Att() tries to get an attribute from a page reference.  The
 // attribute will be resolved.
 func (pd *PdfReaderT) Att(a string, src []byte) []byte {
-	return pd.Obj(pd.Attribute(a, src))
+	return pd.obj(pd.attribute(a, src))
 }
 
-// pd.Stream() returns contents of a stream.
-func (pd *PdfReaderT) Stream(reference []byte) (DictionaryT, []byte) {
-	q, d := pd.Resolve(reference)
+// pd.stream() returns contents of a stream.
+func (pd *PdfReaderT) stream(reference []byte) (DictionaryT, []byte) {
+	q, d := pd.resolve(reference)
 	dic := pd.Dic(d)
-	l := pd.Num(dic["/Length"])
+	l := pd.num(dic["/Length"])
 	pd.rdr.Seek(int64(q), 0)
 	t, _ := ps.Token(pd.rdr)
 	if string(t) != "stream" {
@@ -379,7 +378,7 @@ func (pd *PdfReaderT) Stream(reference []byte) (DictionaryT, []byte) {
 
 // pd.DecodedStream() returns decoded contents of a stream.
 func (pd *PdfReaderT) DecodedStream(reference []byte) (DictionaryT, []byte) {
-	dic, data := pd.Stream(reference)
+	dic, data := pd.stream(reference)
 	if f, ok := dic["/Filter"]; ok {
 		filter := pd.ForcedArray(f)
 		var decos [][]byte
@@ -397,7 +396,7 @@ func (pd *PdfReaderT) DecodedStream(reference []byte) (DictionaryT, []byte) {
 				early := true
 				if deco != nil {
 					if s, ok := deco["/EarlyChange"]; ok {
-						early = pd.Num(s) == 1
+						early = pd.num(s) == 1
 					}
 				}
 				data = lzw.Decode(data, early)
@@ -422,7 +421,7 @@ func (pd *PdfReaderT) DecodedStream(reference []byte) (DictionaryT, []byte) {
 
 // pd.PageFonts() returns references to the fonts defined for a page.
 func (pd *PdfReaderT) PageFonts(page []byte) DictionaryT {
-	fonts, _ := pd.Dic(pd.Attribute("/Resources", page))["/Font"]
+	fonts, _ := pd.Dic(pd.attribute("/Resources", page))["/Font"]
 	if fonts == nil {
 		return nil
 	}
@@ -447,7 +446,7 @@ func Load(fn string) *PdfReaderT {
 		return nil
 	}
 	s, _ = ps.Token(r.rdr)
-	if r.Trailer = Dictionary(s); r.Trailer == nil {
+	if r.Trailer = dictionary(s); r.Trailer == nil {
 		return nil
 	}
 	r.rcache = make(map[string][]byte)

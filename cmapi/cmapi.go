@@ -21,7 +21,7 @@ type CharMapperT struct {
 	Ranges, Uni *cmapt.CMapT
 }
 
-func New() *CharMapperT {
+func NewCharMapperT() *CharMapperT {
 	r := new(CharMapperT)
 	r.Ranges = cmapt.New()
 	r.Uni = cmapt.New()
@@ -36,7 +36,7 @@ type CharMapperI struct {
 	Args   [][]byte
 }
 
-func NewInterpreter(t *CharMapperT) *CharMapperI {
+func newInterpreter(t *CharMapperT) *CharMapperI {
 	r := new(CharMapperI)
 	r.Target = t
 	r.St = stacks.NewStack(1024)
@@ -44,7 +44,7 @@ func NewInterpreter(t *CharMapperT) *CharMapperI {
 	return r
 }
 
-var Ops = map[string]func(t *CharMapperI){
+var ops = map[string]func(t *CharMapperI){
 	"begin": func(t *CharMapperI) {
 		a := t.St.Pop()
 		_ = a
@@ -184,19 +184,19 @@ var Ops = map[string]func(t *CharMapperI){
 }
 
 func Read(rdr fancy.Reader) (r *CharMapperT) {
-	r = New()
+	r = NewCharMapperT()
 	if rdr == nil { // make identity setup
 		r.Uni.AddRange(0, 256, 0)
 		r.Ranges.AddDef(0, 256, 1)
 		return
 	}
-	cm := NewInterpreter(r)
+	cm := newInterpreter(r)
 	for {
 		t, _ := ps.Token(rdr)
 		if len(t) == 0 {
 			break
 		}
-		if f, ok := Ops[string(t)]; ok {
+		if f, ok := ops[string(t)]; ok {
 			f(cm)
 		} else {
 			cm.St.Push(t)
