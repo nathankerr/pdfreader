@@ -10,7 +10,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/nathankerr/pdfreader/pdfread"
+	"github.com/nathankerr/pdfreader"
 	"github.com/nathankerr/pdfreader/strm"
 	"github.com/nathankerr/pdfreader/svg"
 	"os"
@@ -34,7 +34,7 @@ func main() {
 			complain("Bad page!\n\n")
 		}
 	}
-	pd := pdfread.Load(os.Args[1])
+	pd := pdfreader.Load(os.Args[1])
 	if pd == nil {
 		complain("Could not load pdf file!\n\n")
 	}

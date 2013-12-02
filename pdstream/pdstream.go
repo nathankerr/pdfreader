@@ -10,7 +10,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/nathankerr/pdfreader/pdfread"
+	"github.com/nathankerr/pdfreader"
 	"github.com/nathankerr/pdfreader/util"
 	"os"
 )
@@ -22,7 +22,7 @@ import (
 //  ./pdstream.go foo.pdf "9 0 R"
 
 func main() {
-	pd := pdfread.Load(os.Args[1])
+	pd := pdfreader.Load(os.Args[1])
 	_, d := pd.DecodedStream(util.Bytes(os.Args[2]))
 	fmt.Printf("%s", d)
 

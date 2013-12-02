@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/nathankerr/pdfreader/pdfread"
+	"github.com/nathankerr/pdfreader"
 	"os"
 )
 
@@ -12,7 +12,7 @@ import (
 // defined fonts of the pages.
 
 func main() {
-	pd := pdfread.Load(os.Args[1])
+	pd := pdfreader.Load(os.Args[1])
 	if pd != nil {
 		pg := pd.Pages()
 		for k := range pg {
