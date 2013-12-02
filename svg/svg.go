@@ -10,8 +10,8 @@ package svg
 
 import (
 	"fmt"
+	"github.com/nathankerr/pdfreader"
 	"github.com/nathankerr/pdfreader/fancy"
-	"github.com/nathankerr/pdfreader/pdfread"
 	"github.com/nathankerr/pdfreader/strm"
 	"github.com/nathankerr/pdfreader/svgdraw"
 	"github.com/nathankerr/pdfreader/svgtext"
@@ -24,7 +24,7 @@ func complain(err string) {
 	os.Exit(1)
 }
 
-func Page(pd *pdfread.PdfReaderT, page int) []byte {
+func Page(pd *pdfreader.PdfReaderT, page int) []byte {
 	pg := pd.Pages()
 	if page >= len(pg) {
 		complain("Page does not exist!\n")

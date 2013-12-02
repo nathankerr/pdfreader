@@ -10,7 +10,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/nathankerr/pdfreader/pdfread"
+	"github.com/nathankerr/pdfreader"
 	"github.com/nathankerr/pdfreader/strm"
 	"github.com/nathankerr/pdfreader/svg"
 	"io"
@@ -18,7 +18,7 @@ import (
 	"os"
 )
 
-var pd *pdfread.PdfReaderT
+var pd *pdfreader.PdfReaderT
 
 // hello world, the web server
 func HelloServer(w http.ResponseWriter, req *http.Request) {
@@ -36,7 +36,7 @@ func main() {
 	if len(os.Args) == 1 || len(os.Args) > 2 {
 		complain("")
 	}
-	pd = pdfread.Load(os.Args[1])
+	pd = pdfreader.Load(os.Args[1])
 	if pd == nil {
 		complain("Could not load pdf file!\n\n")
 	}

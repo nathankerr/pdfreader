@@ -6,7 +6,7 @@
 //   http://www.opensource.org/licenses/mit-license.php
 
 // Access to PDF files.
-package pdfread
+package pdfreader
 
 import (
 	"compress/zlib"

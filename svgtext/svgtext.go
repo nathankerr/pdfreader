@@ -9,11 +9,11 @@
 package svgtext
 
 import (
+	"github.com/nathankerr/pdfreader"
 	"github.com/nathankerr/pdfreader/cmapi"
 	"github.com/nathankerr/pdfreader/cmapt"
 	"github.com/nathankerr/pdfreader/fancy"
 	"github.com/nathankerr/pdfreader/graf"
-	"github.com/nathankerr/pdfreader/pdfread"
 	"github.com/nathankerr/pdfreader/ps"
 	"github.com/nathankerr/pdfreader/strm"
 	"github.com/nathankerr/pdfreader/util"
@@ -23,17 +23,17 @@ import (
 const WIDTH_DENSITY = 10000
 
 type SvgTextT struct {
-	Pdf      *pdfread.PdfReaderT
+	Pdf      *pdfreader.PdfReaderT
 	Drw      *graf.PdfDrawerT
 	Page     int
 	matrix   []string
-	fonts    pdfread.DictionaryT
+	fonts    pdfreader.DictionaryT
 	fontw    map[string]*cmapt.CMapT
 	x0, x, y string
 	cmaps    map[string]*cmapi.CharMapperT
 }
 
-func New(pdf *pdfread.PdfReaderT, drw *graf.PdfDrawerT) *SvgTextT {
+func New(pdf *pdfreader.PdfReaderT, drw *graf.PdfDrawerT) *SvgTextT {
 	r := new(SvgTextT)
 	drw.Text = r
 	r.Drw = drw
